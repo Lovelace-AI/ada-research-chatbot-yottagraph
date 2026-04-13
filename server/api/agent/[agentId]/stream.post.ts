@@ -109,7 +109,7 @@ export default defineEventHandler(async (event) => {
                 portalMsg.includes('could not mint token') ||
                 portalMsg.includes('impersonation failed');
             throw createError({
-                statusCode: isMintFailure ? 502 : (e.statusCode || 502),
+                statusCode: isMintFailure ? 502 : e.statusCode || 502,
                 statusMessage: isMintFailure
                     ? portalMsg
                     : `Failed to authorize with portal: ${portalMsg}`,
@@ -179,7 +179,7 @@ export default defineEventHandler(async (event) => {
                         emit('error', {
                             code: 'PERMISSION_DENIED',
                             message:
-                                'Agent access denied — the project\'s service account ' +
+                                "Agent access denied — the project's service account " +
                                 'may lack required IAM permissions. ' +
                                 `(Agent Engine returned ${res.status}${errText ? ': ' + errText.slice(0, 200) : ''})`,
                         });

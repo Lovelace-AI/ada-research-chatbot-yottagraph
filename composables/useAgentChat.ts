@@ -102,7 +102,7 @@ export function useAgentChat() {
                 const errorText = await response.text().catch(() => '');
                 throw Object.assign(
                     new Error(errorText || `Agent request failed (${response.status})`),
-                    { status: response.status },
+                    { status: response.status }
                 );
             }
 
@@ -116,10 +116,9 @@ export function useAgentChat() {
                     }
                     break;
                 } else if (event === 'error') {
-                    throw Object.assign(
-                        new Error(data.message || 'Agent error'),
-                        { code: data.code },
-                    );
+                    throw Object.assign(new Error(data.message || 'Agent error'), {
+                        code: data.code,
+                    });
                 }
             }
 
@@ -164,13 +163,13 @@ function agentErrorMessage(e: any): string {
 
     if (status === 502 || msg.includes('could not mint token')) {
         return (
-            'Agent authorization failed — the project\'s cloud permissions may be incomplete. ' +
+            "Agent authorization failed — the project's cloud permissions may be incomplete. " +
             'Check the Broadchurch portal for IAM status details.'
         );
     }
     if (status === 403 || code === 'PERMISSION_DENIED') {
         return (
-            'Agent access denied — the project\'s service account may lack required permissions. ' +
+            "Agent access denied — the project's service account may lack required permissions. " +
             'Check the Broadchurch portal for IAM status details.'
         );
     }

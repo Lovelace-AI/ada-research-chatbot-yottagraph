@@ -1,4 +1,4 @@
-# Ada  Research Chatbot
+# Ada Research Chatbot
 
 ## Vision
 
@@ -104,35 +104,35 @@ report to session state. Build these tools to cover Ada's research domains:
 
 ### Core Tools
 
-| Tool | Purpose | Key MCP tools used |
-|---|---|---|
-| `entity_search` | Resolve an entity by name, fetch its properties and basic relationships. This is the entry point for most queries. | `elemental_get_entity`, `elemental_get_related` |
-| `relations` | Explore an entity's relationships — who owns it, who it's connected to, corporate links. | `elemental_get_relationships`, `elemental_get_related` |
-| `corporate_structure` | Fetch board members, executives, corporate hierarchy, and ownership chains. | `elemental_get_related` |
-| `event_monitor` | Get event timelines — filings, announcements, regulatory actions, corporate events. | `elemental_get_events` |
-| `fsi_data` | SEC filings, financial statements, quarterly data. Fetches multiple filing types in one call. | `elemental_get_entity`, `elemental_get_related` |
+| Tool                  | Purpose                                                                                                            | Key MCP tools used                                     |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------ |
+| `entity_search`       | Resolve an entity by name, fetch its properties and basic relationships. This is the entry point for most queries. | `elemental_get_entity`, `elemental_get_related`        |
+| `relations`           | Explore an entity's relationships — who owns it, who it's connected to, corporate links.                           | `elemental_get_relationships`, `elemental_get_related` |
+| `corporate_structure` | Fetch board members, executives, corporate hierarchy, and ownership chains.                                        | `elemental_get_related`                                |
+| `event_monitor`       | Get event timelines — filings, announcements, regulatory actions, corporate events.                                | `elemental_get_events`                                 |
+| `fsi_data`            | SEC filings, financial statements, quarterly data. Fetches multiple filing types in one call.                      | `elemental_get_entity`, `elemental_get_related`        |
 
 ### Domain Tools
 
-| Tool | Purpose | Key MCP tools used |
-|---|---|---|
-| `sanctions` | Sanctions programs, enforcement actions, designated entities. | `elemental_get_entity`, `elemental_get_related`, `elemental_get_events` |
-| `stock_data` | Ticker information, stock prices, market data. | `elemental_get_related`, `elemental_get_entity` |
-| `prediction_markets` | Prediction market contracts and related events. | `elemental_get_related`, `elemental_get_events` |
-| `company_industry` | SIC industry classification for a company. | `elemental_get_related` |
-| `industry_companies` | List companies within a given SIC industry code. | `elemental_get_entity`, `elemental_get_related` |
-| `search_industries` | Fuzzy search across SIC industry categories. | `elemental_get_entity`, `elemental_get_related` |
-| `lei_data` | LEI (Legal Entity Identifier) lookups and parent/subsidiary chains. | `elemental_get_entity`, `elemental_get_related` |
-| `fred_data` | FRED economic time series data (GDP, interest rates, employment, etc.). | `elemental_get_related`, `elemental_get_entity` |
+| Tool                 | Purpose                                                                 | Key MCP tools used                                                      |
+| -------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `sanctions`          | Sanctions programs, enforcement actions, designated entities.           | `elemental_get_entity`, `elemental_get_related`, `elemental_get_events` |
+| `stock_data`         | Ticker information, stock prices, market data.                          | `elemental_get_related`, `elemental_get_entity`                         |
+| `prediction_markets` | Prediction market contracts and related events.                         | `elemental_get_related`, `elemental_get_events`                         |
+| `company_industry`   | SIC industry classification for a company.                              | `elemental_get_related`                                                 |
+| `industry_companies` | List companies within a given SIC industry code.                        | `elemental_get_entity`, `elemental_get_related`                         |
+| `search_industries`  | Fuzzy search across SIC industry categories.                            | `elemental_get_entity`, `elemental_get_related`                         |
+| `lei_data`           | LEI (Legal Entity Identifier) lookups and parent/subsidiary chains.     | `elemental_get_entity`, `elemental_get_related`                         |
+| `fred_data`          | FRED economic time series data (GDP, interest rates, employment, etc.). | `elemental_get_related`, `elemental_get_entity`                         |
 
 ### Utility Tools
 
-| Tool | Purpose |
-|---|---|
-| `inspect_citations` | Retrieve provenance details for cited facts (uses `elemental_get_citations`). |
-| `read_from_state` | Read a previously cached entity report from session state without making new MCP calls. |
-| `about_lovelace` | Return information about the Lovelace platform (bundled text, no MCP call needed). |
-| `ada_help` | Return a usage guide for Ada (bundled text, no MCP call needed). |
+| Tool                | Purpose                                                                                 |
+| ------------------- | --------------------------------------------------------------------------------------- |
+| `inspect_citations` | Retrieve provenance details for cited facts (uses `elemental_get_citations`).           |
+| `read_from_state`   | Read a previously cached entity report from session state without making new MCP calls. |
+| `about_lovelace`    | Return information about the Lovelace platform (bundled text, no MCP call needed).      |
+| `ada_help`          | Return a usage guide for Ada (bundled text, no MCP call needed).                        |
 
 ### Tool Design Principles
 
@@ -192,6 +192,7 @@ Maintain an entity store in the agent's session state. Each entity entry:
 ```
 
 Additional state to track:
+
 - **Provenance** — accumulated citation sources from MCP response metadata
 - **Tool log** — ordered list of tool invocations for the session
 
@@ -218,11 +219,11 @@ requirements:
   least visually distinct.
 - **Conversation starters** — Provide example queries to help new users
   get started. Good examples:
-  - "Tell me about JPMorgan Chase"
-  - "Who are the board members of Apple?"
-  - "What sanctions are associated with Russia?"
-  - "Compare the recent SEC filings of Tesla and Ford"
-  - "What's the corporate structure of Berkshire Hathaway?"
+    - "Tell me about JPMorgan Chase"
+    - "Who are the board members of Apple?"
+    - "What sanctions are associated with Russia?"
+    - "Compare the recent SEC filings of Tesla and Ford"
+    - "What's the corporate structure of Berkshire Hathaway?"
 
 ---
 
@@ -267,11 +268,10 @@ Ada's system prompt should establish:
 - **Auth:** Default dev bypass (`NUXT_PUBLIC_USER_NAME`) is fine for
   initial development.
 
-
 ## Status
 
 Project just created. Run `/build_my_app` in Cursor to start building.
 
 ## Modules
 
-*None yet — the agent will populate this as features are built.*
+_None yet — the agent will populate this as features are built._

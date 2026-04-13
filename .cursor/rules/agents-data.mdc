@@ -1,0 +1,115 @@
+---
+description: "ADK agents calling the Elemental API via broadchurch_auth and local testing env vars."
+alwaysApply: false
+globs: agents/**
+---
+
+# Agents: Elemental API (Query Server)
+
+## Connecting to the Elemental API
+
+Use `broadchurch_auth` for all Elemental API calls. It lives at
+`agents/broadchurch_auth.py` and is automatically bundled into each agent
+directory at deploy time. It handles:
+
+- Routing through the Broadchurch Portal gateway proxy in production
+  (no direct QS credentials needed — the portal handles Auth0 M2M auth)
+- Authenticating to the proxy with a per-tenant API key from
+  `broadchurch.yaml` (`gateway.qs_api_key`)
+- Falling back to `ELEMENTAL_API_URL` + `ELEMENTAL_API_TOKEN` env vars
+  for local dev
+
+```python
+try:
+    from broadchurch_auth import elemental_client
+except ImportError:
+    from .broadchurch_auth import elemental_client
+
+def get_schema() -> dict:
+    """Get the yottagraph schema."""
+    resp = elemental_client.get("/elemental/metadata/schema")
+    resp.raise_for_status()
+    return resp.json()
+
+def find_entities(expression: str, limit: int = 10) -> dict:
+    """Search for entities."""
+    resp = elemental_client.post("/elemental/find", data={"expression": expression, "limit": str(limit)})
+    resp.raise_for_status()
+    return resp.json()
+```
+
+The try/except is required because the import path differs between local
+dev (`agents/` on sys.path → absolute import) and Agent Engine runtime
+(code packaged inside an ADK module → relative import).
+
+**Do NOT** hardcode URLs or manually handle auth tokens. Do NOT read
+`broadchurch.yaml` directly — `broadchurch_auth` handles all of this.
+
+Key endpoints:
+- `GET /elemental/metadata/schema` — entity types and properties
+- `POST /elemental/find` — search for entities by expression
+- `POST /entities/search` — search for entities by name (batch, scored)
+- `POST /elemental/entities/properties` — get entity property values
+
+Requirements for agents using the Elemental API (add to `requirements.txt`):
+```
+google-auth>=2.20.0
+pyyaml>=6.0
+```
+
+## Local testing: Elemental API env vars
+
+When testing agents locally with `adk web`, for agents that call the Elemental API:
+
+```bash
+export ELEMENTAL_API_URL=https://stable-query.lovelace.ai
+export ELEMENTAL_API_TOKEN=<your-token>
+```
+
+In production, all Elemental API calls go through the Portal Gateway at
+`{gateway_url}/api/qs/{org_id}/...`. The agent sends `X-Api-Key` (from
+`broadchurch.yaml`) and the portal injects its own Auth0 M2M token
+upstream.
+
+## MCP-based agents
+
+When the project uses **MCP-only data architecture**, agents access the
+knowledge graph through Elemental MCP tools instead of REST. The MCP tools
+(`elemental_get_entity`, `elemental_get_related`, `elemental_get_events`,
+etc.) handle entity resolution, NEID formatting, and schema lookups
+automatically. Use the `data-model` skill docs for entity types,
+properties, and relationship schemas.
+
+Wire MCP into ADK agents by declaring an `McpToolset` that points to the
+Elemental MCP server. The MCP server URL and auth are configured in the
+agent's runtime environment (typically via `broadchurch.yaml` gateway
+proxy). See the Aether `agents` rule for ADK agent structure.
+
+**Read the `elemental-mcp-patterns` skill** (`skills/elemental-mcp-patterns/`)
+before writing tool code. It covers MCP response shapes, property type
+handling (the `data_nindex` problem), and copy-paste Python patterns for
+entity resolution, property formatting, events, and relationships.
+
+## Reliability invariants
+
+These constraints reduce failure modes when building graph-aware agents,
+whether using REST or MCP:
+
+- **Resolve entities first.** For named-entity questions, do explicit entity
+  resolution before deeper property/relationship/event retrieval.
+- **Prefer domain endpoints over heuristic matching.** Use dedicated event or
+  relationship APIs (`elemental_get_events`, event endpoints) instead of
+  inferring semantics from property/PID names. Substring-matching PID names
+  for words like "event" or "filing" returns wrong results — PIDs like
+  "filed" are document relationship IDs, not event timestamps.
+- **Keep IDs internal to tool calls.** Use NEIDs/EIDs internally for precise
+  requests, and render human-readable names in user-facing output. Never
+  show raw NEIDs to users.
+- **Handle reference-typed properties (`data_nindex`).** Some property
+  values are entity references (NEIDs), not display text. Use
+  `elemental_get_schema` or the data-model skill to check a property's
+  type. For `data_nindex` properties (e.g. "country" on an organization),
+  resolve the NEID to a display name before rendering. A helper like
+  `_pid_types()` that maps PIDs to their schema type is very useful.
+- **Treat 404 as not-found data by default.** Validate server health
+  separately before classifying these as connectivity failures.
