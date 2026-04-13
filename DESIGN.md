@@ -270,7 +270,9 @@ Ada's system prompt should establish:
 
 ## Status
 
-Initial build complete. Chat UI and Ada agent are implemented.
+Domain tool architecture implemented. The agent uses 12 local Python tool
+functions that internally call Elemental MCP tools, format results as
+readable Markdown, and cache reports in session state. Chat UI is functional.
 
 ## Modules
 
@@ -286,11 +288,21 @@ Single-page chat interface with:
 
 ### Ada Agent (`agents/ada/`)
 
-ADK agent wired to the Elemental MCP server. Uses `McpToolset` with
-SSE connection to the portal's MCP endpoint. The agent has access to all
-Elemental MCP tools: entity lookup, relationships, events, sentiment,
-schema discovery, neighborhood, and citations. Uses Gemini 2.0 Flash
-with a research-focused system prompt.
+ADK agent with domain-specific Python tools that call the Elemental MCP
+server via Streamable HTTP. The agent no longer exposes raw MCP tools to
+the LLM — instead, 12 purpose-built tool functions handle entity resolution,
+property fetching, relationship traversal, event retrieval, and more.
+
+Key files:
+
+- `agent.py` — Agent definition, system prompt, tool registration
+- `tools.py` — Domain tool functions (entity_search, corporate_structure,
+  event_monitor, relations, sentiment_analysis, fsi_data, stock_data,
+  schema_lookup, inspect_citations, read_from_state, about_lovelace, ada_help)
+- `elemental.py` — MCP client wrapper for calling Elemental tools from Python
+
+Uses Gemini 2.0 Flash with a research-focused system prompt that guides
+tool selection based on query type.
 
 ### ChatMessage Component (`components/ChatMessage.vue`)
 
