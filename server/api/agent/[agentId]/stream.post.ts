@@ -362,18 +362,41 @@ function classifyAdkEvent(evt: any): { type: string; data: any } | null {
     if (!evt || typeof evt !== 'object') return null;
     const parts: any[] = evt.content?.parts || [];
     if (parts.length === 0) return null;
+
+    let textContent: string | null = null;
+    let functionCall: any = null;
+    let functionResponse: any = null;
+
     for (const part of parts) {
         if (part.functionCall || part.function_call) {
-            const fc = part.functionCall || part.function_call;
-            return { type: 'function_call', data: { name: fc.name, args: fc.args || {} } };
-        }
-        if (part.functionResponse || part.function_response) {
-            const fr = part.functionResponse || part.function_response;
-            return { type: 'function_response', data: { name: fr.name, response: fr.response } };
-        }
-        if (part.text) {
-            return { type: 'text', data: { text: part.text } };
+            functionCall = part.functionCall || part.function_call;
+        } else if (part.functionResponse || part.function_response) {
+            functionResponse = part.functionResponse || part.function_response;
+        } else if (part.text) {
+            textContent = part.text;
         }
     }
+
+    // Function calls/responses take priority — the text in these events is
+    // internal planning/thinking, not user-facing output.
+    if (functionCall) {
+        return {
+            type: 'function_call',
+            data: { name: functionCall.name, args: functionCall.args || {} },
+        };
+    }
+    if (functionResponse) {
+        return {
+            type: 'function_response',
+            data: { name: functionResponse.name, response: functionResponse.response },
+        };
+    }
+
+    // Only emit text for events that are purely text (the final model response).
+    // Skip events from the "tool" role — those are tool-result echoes.
+    if (textContent && evt.content?.role !== 'tool') {
+        return { type: 'text', data: { text: textContent } };
+    }
+
     return null;
 }
