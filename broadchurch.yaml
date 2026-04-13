@@ -1,0 +1,30 @@
+# Broadchurch project configuration
+# Auto-generated during tenant provisioning.
+
+gcp:
+  project: broadchurch
+  region: us-central1
+  staging_bucket: broadchurch-agent-staging
+
+tenant:
+  project_name: "ada-research-chatbot"
+  display_name: "Ada  Research Chatbot"
+  org_id: "org_6qKPf3xyZOET9N5z"
+  service_account: "tenant-6qkpf3xyzoet9n5z@broadchurch.iam.gserviceaccount.com"
+
+gateway:
+  url: "https://broadchurch-portal-194773164895.us-central1.run.app"
+  qs_api_key: "2ec7bcd46ec602826616e0c6198d3d433c0a5eea75087eb83d3b9c47483b7393"
+
+query_server:
+  url: "https://query.news.prod.g.lovelace.ai"
+  audience: "queryserver:api"
+
+auth:
+  client_id: "3d8yuxIEaUbqtF9IU8xXN3KfaKyadl1B"
+  audience: "queryserver:api"
+
+aether:
+  data_mode: "api-mcp"
+
+agents: {}
