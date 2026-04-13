@@ -8,6 +8,7 @@ export interface ChatMessage {
     timestamp: number;
     error?: boolean;
     streaming?: boolean;
+    toolActivity?: string;
 }
 
 export interface AgentStreamEvent {
@@ -108,10 +109,15 @@ export function useAgentChat() {
 
             for await (const { event, data } of readSSE(response)) {
                 if (event === 'text') {
-                    updateAgent({ text: data.text });
+                    updateAgent({ text: data.text, toolActivity: undefined });
+                } else if (event === 'function_call') {
+                    const label = humanizeToolName(data.name);
+                    updateAgent({ toolActivity: label });
+                } else if (event === 'function_response') {
+                    updateAgent({ toolActivity: undefined });
                 } else if (event === 'done') {
                     if (data.session_id) sessionId.value = data.session_id;
-                    if (data.text && !messages.value[agentMsgIdx].text) {
+                    if (data.text) {
                         updateAgent({ text: data.text });
                     }
                     break;
@@ -319,4 +325,20 @@ function safeJsonParse(str: string): any {
     } catch {
         return null;
     }
+}
+
+const TOOL_LABELS: Record<string, string> = {
+    elemental_get_entity: 'Looking up entity…',
+    elemental_get_related: 'Finding relationships…',
+    elemental_get_relationships: 'Analyzing connections…',
+    elemental_get_events: 'Fetching events…',
+    elemental_get_schema: 'Discovering schema…',
+    elemental_graph_neighborhood: 'Exploring network…',
+    elemental_graph_sentiment: 'Analyzing sentiment…',
+    elemental_get_citations: 'Checking citations…',
+    elemental_health: 'Checking service…',
+};
+
+function humanizeToolName(name: string): string {
+    return TOOL_LABELS[name] || `Running ${name.replace(/_/g, ' ')}…`;
 }

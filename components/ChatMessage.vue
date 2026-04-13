@@ -12,14 +12,38 @@
                 <span class="text-caption text-medium-emphasis">Ada</span>
             </div>
 
-            <div v-if="message.streaming && !message.text" class="typing-indicator">
+            <div
+                v-if="message.streaming && !message.text && !message.toolActivity"
+                class="typing-indicator"
+            >
                 <span /><span /><span />
+            </div>
+            <div
+                v-else-if="message.streaming && !message.text && message.toolActivity"
+                class="tool-activity d-flex align-center ga-2"
+            >
+                <v-progress-circular indeterminate size="14" width="2" color="primary" />
+                <span class="text-caption" style="color: var(--lv-green)">{{
+                    message.toolActivity
+                }}</span>
             </div>
             <div v-else-if="isUser" class="text-body-2 bubble-text" style="white-space: pre-wrap">
                 {{ message.text }}
             </div>
             <div v-else class="markdown-body text-body-2" v-html="renderedMarkdown" />
-            <span v-if="message.streaming && message.text" class="streaming-cursor" />
+            <span
+                v-if="message.streaming && message.text && !message.toolActivity"
+                class="streaming-cursor"
+            />
+            <div
+                v-if="message.streaming && message.toolActivity && message.text"
+                class="tool-activity d-flex align-center ga-2 mt-2"
+            >
+                <v-progress-circular indeterminate size="14" width="2" color="primary" />
+                <span class="text-caption" style="color: var(--lv-green)">{{
+                    message.toolActivity
+                }}</span>
+            </div>
 
             <div class="text-caption text-medium-emphasis mt-1" style="opacity: 0.6">
                 {{ formatTime(message.timestamp) }}
