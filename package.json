@@ -35,6 +35,7 @@
         "iron-webcrypto": "^1.2.1",
         "jose": "^5.9.6",
         "localforage": "^1.10.0",
+        "marked": "^18.0.0",
         "mitt": "^3.0.1",
         "prettier": "^3.5.3",
         "vuetify": "^3.8.5"

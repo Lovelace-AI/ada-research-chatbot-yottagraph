@@ -270,8 +270,34 @@ Ada's system prompt should establish:
 
 ## Status
 
-Project just created. Run `/build_my_app` in Cursor to start building.
+Initial build complete. Chat UI and Ada agent are implemented.
 
 ## Modules
 
-_None yet — the agent will populate this as features are built._
+### Chat UI (`pages/index.vue`)
+
+Single-page chat interface with:
+
+- Welcome state with conversation starter cards
+- SSE streaming via `useAgentChat` composable
+- Rich Markdown rendering (tables, code blocks, lists, headers) via `marked`
+- Auto-scroll, clear chat, responsive layout
+- Agent auto-discovery via `useTenantConfig`
+
+### Ada Agent (`agents/ada/`)
+
+ADK agent wired to the Elemental MCP server. Uses `McpToolset` with
+SSE connection to the portal's MCP endpoint. The agent has access to all
+Elemental MCP tools: entity lookup, relationships, events, sentiment,
+schema discovery, neighborhood, and citations. Uses Gemini 2.0 Flash
+with a research-focused system prompt.
+
+### ChatMessage Component (`components/ChatMessage.vue`)
+
+Enhanced chat bubble with:
+
+- Markdown rendering for agent responses (tables, code, blockquotes)
+- Plain text for user messages
+- Typing indicator and streaming cursor
+- Error state display
+- Lovelace brand styling (green accent, dark theme)
